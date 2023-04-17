@@ -84,9 +84,23 @@ class ContactsApp extends Contacts {
 
       super.add(contact)
       this.createContactList()
-
+      this.handleLocalStorage()
     })
   }
+setCookie(name, value){
+  const expires = new Date()
+  expires.setDate(expires.getDate() + 10)
+  document.cookie = `${name}=${value}; path=/; expires=${expires}`
+}
+
+handleLocalStorage(){
+  if(!this.data.length){
+    return localStorage.removeItem('contacts')
+  }
+  localStorage.setItem("contacts", JSON.stringify(this.data))
+  this.setCookie('storageExpiration','true')
+}
+
   createContactList() {
     const contacts = document.querySelector('.contacts__list')
     const list = document.createElement('div')
@@ -109,6 +123,14 @@ class ContactsApp extends Contacts {
 
     list.append(name, email, address, phone, buttonContainer)
     contacts.append(list)
+
+    this.data.find((element) => {
+      name.innerHTML = element.name
+      email.innerHTML = element.email
+      address.innerHTML = element.address
+      phone.innerHTML = element.phone
+   
+  })
     editButton.addEventListener("click", event => {
       event.preventDefault()
       const parent = removeButton.closest(".contacts__item")
@@ -123,22 +145,18 @@ class ContactsApp extends Contacts {
 				prompt("Enter phone:") || phone.textContent
 
 			super.edit(+parent.id, editContact)
+      this.handleLocalStorage()
     })
     removeButton.addEventListener("click", (event) => {
 			event.preventDefault()
 			const parent = removeButton.parentElement.parentElement
 			super.remove(+parent.id)
 			parent.remove()
+      this.handleLocalStorage()
 	
 		})
-   this.data.find((element) => {
-        name.innerHTML = element.name
-        email.innerHTML = element.email
-        address.innerHTML = element.address
-        phone.innerHTML = element.phone
-     
-    })
-
+ 
+    
   }
 }
 
